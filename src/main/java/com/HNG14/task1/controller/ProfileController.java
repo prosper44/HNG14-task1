@@ -81,7 +81,7 @@ public class ProfileController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/profiles/{id}")
     public ResponseEntity<?> getProfile(@PathVariable String id) {
         try {
             Map<String, Object> profileData = profileService.getProfileById(id);
@@ -104,7 +104,7 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.getProfiles(gender, countryId, ageGroup));
     }
     
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/profiles/{id}")
     public ResponseEntity<?> deleteProfile(@PathVariable String id) {
 
         
