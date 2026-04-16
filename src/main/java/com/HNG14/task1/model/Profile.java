@@ -13,6 +13,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 
 @Entity
@@ -23,6 +26,11 @@ public class Profile {
     private String id;
 
     @Column(nullable = false, unique = true)
+
+    
+    @NotBlank(message = "Name is required")
+    @Size(min = 2, max = 15, message = "Name must be between 2 and 15 characters")
+    @Pattern(regexp = "^[A-Za-z\\-'\\s]+$", message = "Name must contain only letters, spaces, hyphens, or apostrophes")
     private String name;
 
     private String  gender;

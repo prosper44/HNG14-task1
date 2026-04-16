@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.HNG14.task1.exception.CustomNotFoundException;
 import com.HNG14.task1.service.ProfileService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/")
 
@@ -32,7 +34,7 @@ public class ProfileController {
   
 
     @PostMapping("/api/profiles")
-    public ResponseEntity<?> createProfile(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> createProfile(@Valid @RequestBody Map<String, Object> request) {
 
         Object nameObj = request.get("name");
 
@@ -49,11 +51,12 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(error);
         }
 
-        if(nameObj instanceof Integer 
-    || nameObj.toString().matches("\\d+") 
-    || !nameObj.toString().matches("^[A-Za-z\\-'\\s]+$") 
-    || nameObj.toString().matches(".*([A-Za-z])\\1{3,}.*") 
-    || nameObj.toString().length() < 2 
+      if (nameObj == null
+    || nameObj instanceof Number
+    || nameObj.toString().matches("\\d+")
+    || !nameObj.toString().matches("^[A-Za-z\\-'\\s]+$")
+    || nameObj.toString().matches(".*([A-Za-z])\\1{3,}.*")
+    || nameObj.toString().length() < 2
     || nameObj.toString().length() > 15) 
         {
              Map<String,Object> error = new LinkedHashMap<>();
