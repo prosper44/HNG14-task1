@@ -94,7 +94,7 @@ public class ProfileController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/api/profiles")
     public ResponseEntity<?> getAllProfiles(
         @RequestParam(required = false) String gender,
         @RequestParam(required = false) String countryId,
