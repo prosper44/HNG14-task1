@@ -49,7 +49,12 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(error);
         }
 
-        if(nameObj instanceof Integer || nameObj.toString().matches("\\d+") || !nameObj.toString().matches("^[A-Za-z\\-'\\s]+$") || nameObj.toString().matches(".*([A-Za-z])\\1{3,}.*") || nameObj.toString().length() < 2 || nameObj.toString().length() > 15 || nameObj.toString().matches("^[A-Za-z\\-'\\s]+$") )
+        if(nameObj instanceof Integer 
+    || nameObj.toString().matches("\\d+") 
+    || !nameObj.toString().matches("^[A-Za-z\\-'\\s]+$") 
+    || nameObj.toString().matches(".*([A-Za-z])\\1{3,}.*") 
+    || nameObj.toString().length() < 2 
+    || nameObj.toString().length() > 15) 
         {
              Map<String,Object> error = new LinkedHashMap<>();
                 error.put("status", "error");
