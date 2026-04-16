@@ -212,7 +212,7 @@ public class ProfileService {
         Optional<Profile> existing = profileRepository.findById(id);
         if(!(existing.isPresent()))
         {
-            throw new CustomNotFoundException("Profile not found for id: " + id);  
+            throw new CustomNotFoundException("Profile not found");  
         }
 
         Profile getExisting = existing.get();
