@@ -29,7 +29,7 @@ public class ProfileController {
         this.profileService = profileService;
     }
 
-    @PostMapping
+    @GetMapping
     public ResponseEntity<?> homePage() {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("status", "success");
