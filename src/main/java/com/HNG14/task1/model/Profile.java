@@ -1,6 +1,10 @@
 package com.HNG14.task1.model;
 
+
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+
 import com.github.f4b6a3.uuid.UuidCreator;
 
 import jakarta.persistence.Column;
@@ -34,7 +38,7 @@ public class Profile {
 
     private double countryProbability;
 
-    private Instant createdAt;
+    private String createdAt;
 
 
     @PrePersist
@@ -44,7 +48,7 @@ public class Profile {
         }
 
         if(this.createdAt == null){
-            this.createdAt = Instant.now();
+            this.createdAt = Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
         }
     }  
     
@@ -104,7 +108,7 @@ public class Profile {
     public void setCountryProbability(double countryProbability) {
         this.countryProbability = countryProbability;
     }
-    public Instant getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
