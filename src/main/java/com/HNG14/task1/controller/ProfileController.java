@@ -29,13 +29,7 @@ public class ProfileController {
         this.profileService = profileService;
     }
 
-    @GetMapping
-    public ResponseEntity<?> homePage() {
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("status", "success");
-        response.put("message", "Welcome to the Profile API! Use /api/profiles to manage profiles.");
-        return ResponseEntity.ok(response);
-    }
+  
 
     @PostMapping("/api/profiles")
     public ResponseEntity<?> createProfile(@RequestBody Map<String, Object> request) {

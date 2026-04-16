@@ -49,7 +49,7 @@ public class ProfileService {
         
             Map<String, Object> existingProfile = new LinkedHashMap<>();
             existingProfile.put("status", "success");
-            existingProfile.put("message", "Profile already exists for the given name: " + name);
+            existingProfile.put("message", "Profile already exists");
             existingProfile.put("data", response1);
             return existingProfile;
         
