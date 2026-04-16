@@ -4,6 +4,7 @@ package com.HNG14.task1.model;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
@@ -48,7 +49,10 @@ public class Profile {
         }
 
         if(this.createdAt == null){
-            this.createdAt = Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
+            this.createdAt = Instant.now()
+    .atOffset(ZoneOffset.UTC)
+    .truncatedTo(ChronoUnit.SECONDS)
+    .format(DateTimeFormatter.ISO_INSTANT);
         }
     }  
     
