@@ -19,7 +19,7 @@ import com.HNG14.task1.exception.CustomNotFoundException;
 import com.HNG14.task1.service.ProfileService;
 
 @RestController
-@RequestMapping("/api/profiles")
+@RequestMapping("/")
 @CrossOrigin(origins = "*")
 public class ProfileController {
 
@@ -30,6 +30,14 @@ public class ProfileController {
     }
 
     @PostMapping
+    public ResponseEntity<?> homePage() {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("status", "success");
+        response.put("message", "Welcome to the Profile API! Use /api/profiles to manage profiles.");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/profiles")
     public ResponseEntity<?> createProfile(@RequestBody Map<String, Object> request) {
 
         Object nameObj = request.get("name");
