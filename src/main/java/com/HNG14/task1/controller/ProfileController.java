@@ -20,7 +20,7 @@ import com.HNG14.task1.service.ProfileService;
 
 @RestController
 @RequestMapping("/")
-@CrossOrigin(origins = "*")
+
 public class ProfileController {
 
     private final ProfileService profileService;
