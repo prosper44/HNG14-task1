@@ -51,10 +51,8 @@ public class ProfileController {
                 
             return ResponseEntity.badRequest().body(error);
         }
-
-      if (nameObj == null 
-    || nameObj.toString().trim().isEmpty()
-    || nameObj instanceof Number
+        
+        if( nameObj instanceof Number
     || nameObj.toString().matches("\\d+")
     || !nameObj.toString().matches("^[A-Za-z\\-'\\s]+$")
     || nameObj.toString().matches(".*([A-Za-z])\\1{3,}.*")
@@ -67,6 +65,8 @@ public class ProfileController {
                 
             return ResponseEntity.unprocessableEntity().body(error);
         }
+
+    
 
 
        
