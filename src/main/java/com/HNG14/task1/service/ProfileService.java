@@ -169,10 +169,11 @@ public class ProfileService {
         if (gender != null) {
             gender = gender.trim().toLowerCase();
             if (!gender.equals("male") && !gender.equals("female")) {
-                Map<String,Object> error = new LinkedHashMap<>();
-                error.put("status", "error");
-                error.put("message", "Invalid gender provided. Allowed values: male, female");
-                return ResponseEntity.badRequest().body(error);
+               
+                return ResponseEntity.badRequest().body((Map.of(
+                "status", "error",
+                "message", "Invalid gender provided. Allowed values: male, female"
+            )));
 
             }
         }
@@ -182,10 +183,11 @@ public class ProfileService {
             ageGroup = ageGroup.trim().toLowerCase();
             List<String> validAgeGroups = Arrays.asList("child", "teenager", "adult", "senior");
             if (!validAgeGroups.contains(ageGroup)) {
-                Map<String,Object> error = new LinkedHashMap<>();
-                error.put("status", "error");   
-                    error.put("message", "Invalid ageGroup provided. Allowed values: child, teenager, adult, senior");
-                return ResponseEntity.badRequest().body(error);
+                
+                return ResponseEntity.badRequest().body(Map.of(
+                "status", "error",
+                "message", "Invalid ageGroup provided. Allowed values: child, teenager, adult, senior"
+            ));
 
             }
         }
@@ -194,11 +196,10 @@ public class ProfileService {
         if (countryId != null) {
             countryId = countryId.trim().toUpperCase();
             if (countryId.length() != 2) {
-                Map<String,Object> error = new LinkedHashMap<>();
-                error.put("status", "error");
-                error.put("message", "Invalid countryId. Must be ISO 3166-1 alpha-2 code (e.g., NG, US, GB)");
-                
-                return ResponseEntity.badRequest().body(error);
+                return ResponseEntity.badRequest().body(Map.of(
+                "status", "error",
+                "message", "Invalid countryId. Must be ISO 3166-1 alpha-2 code (e.g., NG, US, GB)"
+            ));
             }
         }
 
