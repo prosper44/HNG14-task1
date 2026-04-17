@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.HNG14.task1.exception.CustomNotFoundException;
@@ -160,7 +161,7 @@ public class ProfileService {
         }
     }
 
-    public Map<String, Object> getProfiles(String gender, String countryId, String ageGroup)
+    public ResponseEntity<Map<String, Object>> getProfiles(String gender, String countryId, String ageGroup)
     {
        List<Profile> profiles;
 
@@ -168,7 +169,11 @@ public class ProfileService {
         if (gender != null) {
             gender = gender.trim().toLowerCase();
             if (!gender.equals("male") && !gender.equals("female")) {
-                throw new CustomNotFoundException("Invalid gender provided. Allowed values: male, female");
+                Map<String,Object> error = new LinkedHashMap<>();
+                error.put("status", "error");
+                error.put("message", "Invalid gender provided. Allowed values: male, female");
+                return ResponseEntity.badRequest().body(error);
+
             }
         }
 
@@ -177,7 +182,11 @@ public class ProfileService {
             ageGroup = ageGroup.trim().toLowerCase();
             List<String> validAgeGroups = Arrays.asList("child", "teenager", "adult", "senior");
             if (!validAgeGroups.contains(ageGroup)) {
-                throw new CustomNotFoundException("Invalid ageGroup provided. Allowed values: child, teenager, adult, senior");
+                Map<String,Object> error = new LinkedHashMap<>();
+                error.put("status", "error");   
+                    error.put("message", "Invalid ageGroup provided. Allowed values: child, teenager, adult, senior");
+                return ResponseEntity.badRequest().body(error);
+
             }
         }
 
@@ -185,7 +194,11 @@ public class ProfileService {
         if (countryId != null) {
             countryId = countryId.trim().toUpperCase();
             if (countryId.length() != 2) {
-                throw new CustomNotFoundException("Invalid countryId. Must be ISO 3166-1 alpha-2 code (e.g., NG, US, GB)");
+                Map<String,Object> error = new LinkedHashMap<>();
+                error.put("status", "error");
+                error.put("message", "Invalid countryId. Must be ISO 3166-1 alpha-2 code (e.g., NG, US, GB)");
+                
+                return ResponseEntity.badRequest().body(error);
             }
         }
 
@@ -224,7 +237,7 @@ public class ProfileService {
         finalResponse.put("count", profiles.size());
         finalResponse.put("data", response);
 
-        return finalResponse;
+        return ResponseEntity.ok(finalResponse);
     }
 
     public void deleteProfile(String id)
