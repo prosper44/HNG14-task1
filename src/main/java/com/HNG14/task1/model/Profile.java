@@ -27,9 +27,8 @@ public class Profile {
 
     
     
-    @NotBlank(message = "Name is required")
-@Size(min = 2, max = 15, message = "Name must be between 2 and 15 characters")
-@Pattern(regexp = "^[A-Za-z\\-'\\s]+$", message = "Name must contain only letters, spaces, hyphens, or apostrophes")
+
+
 @Column(nullable = false, unique = true)
     private String name;
 
