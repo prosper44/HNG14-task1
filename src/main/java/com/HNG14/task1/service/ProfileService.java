@@ -165,57 +165,53 @@ public class ProfileService {
     {
        List<Profile> profiles;
 
-        // validate gender
-        if (gender != null) {
-            gender = gender.trim().toLowerCase();
-            if (!gender.equals("male") && !gender.equals("female")) {
-               
-                return ResponseEntity.badRequest().body((Map.of(
-                "status", "error",
-                "message", "Invalid gender provided. Allowed values: male, female"
-            )));
-
+                // Validate gender
+            if (gender != null) {
+                gender = gender.trim().toLowerCase();
+                if (!gender.equals("male") && !gender.equals("female")) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "Invalid gender provided. Allowed values: male, female"
+                    ));
+                }
             }
-        }
 
-        // validate ageGroup
-        if (ageGroup != null) {
-            ageGroup = ageGroup.trim().toLowerCase();
-            List<String> validAgeGroups = Arrays.asList("child", "teenager", "adult", "senior");
-            if (!validAgeGroups.contains(ageGroup)) {
-                
-                return ResponseEntity.badRequest().body(Map.of(
-                "status", "error",
-                "message", "Invalid ageGroup provided. Allowed values: child, teenager, adult, senior"
-            ));
-
+            // Validate ageGroup
+            if (ageGroup != null) {
+                ageGroup = ageGroup.trim().toLowerCase();
+                List<String> validAgeGroups = Arrays.asList("child", "teenager", "adult", "senior");
+                if (!validAgeGroups.contains(ageGroup)) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "Invalid ageGroup provided. Allowed values: child, teenager, adult, senior"
+                    ));
+                }
             }
-        }
 
-        // validate countryId
-        if (countryId != null) {
-            countryId = countryId.trim().toUpperCase();
-            if (countryId.length() != 2) {
-                return ResponseEntity.badRequest().body(Map.of(
-                "status", "error",
-                "message", "Invalid countryId. Must be ISO 3166-1 alpha-2 code (e.g., NG, US, GB)"
-            ));
+            // Validate countryId
+            if (countryId != null) {
+                countryId = countryId.trim().toUpperCase();
+                if (countryId.length() != 2) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "Invalid countryId. Must be ISO 3166-1 alpha-2 code (e.g., NG, US, GB)"
+                    ));
+                }
             }
-        }
 
-        // apply filters
-        if (gender != null && ageGroup != null && countryId != null) {
-            profiles = profileRepository.findByGenderIgnoreCaseAndAgeGroupIgnoreCaseAndCountryIdIgnoreCase(gender, ageGroup, countryId);
-        } else if (gender != null) {
-            profiles = profileRepository.findByGenderIgnoreCase(gender);
-        } else if (ageGroup != null) {
-            profiles = profileRepository.findByAgeGroupIgnoreCase(ageGroup);
-        } else if (countryId != null) {
-            profiles = profileRepository.findByCountryIdIgnoreCase(countryId);
-        } else {
-            profiles = profileRepository.findAll();
-        }
-
+            // Apply filters
+            
+            if (gender != null && ageGroup != null && countryId != null) {
+                profiles = profileRepository.findByGenderIgnoreCaseAndAgeGroupIgnoreCaseAndCountryIdIgnoreCase(gender, ageGroup, countryId);
+            } else if (gender != null) {
+                profiles = profileRepository.findByGenderIgnoreCase(gender);
+            } else if (ageGroup != null) {
+                profiles = profileRepository.findByAgeGroupIgnoreCase(ageGroup);
+            } else if (countryId != null) {
+                profiles = profileRepository.findByCountryIdIgnoreCase(countryId);
+            } else {
+                profiles = profileRepository.findAll();
+            }
 
         List<Map<String, Object>> response = new ArrayList<>();
         for (Profile profile : profiles) {
