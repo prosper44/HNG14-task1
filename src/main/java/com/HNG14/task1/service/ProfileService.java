@@ -234,7 +234,7 @@ public class ProfileService {
         finalResponse.put("count", profiles.size());
         finalResponse.put("data", response);
 
-        if(finalResponse.isEmpty())
+        if(profiles.isEmpty())
         {
             Map<String,Object> error = new LinkedHashMap<>();
             error.put("status", "error");
