@@ -238,7 +238,7 @@ public class ProfileService {
         {
             Map<String,Object> error = new LinkedHashMap<>();
             error.put("status", "error");
-            error.put("message", "wrong input");
+            error.put("message", "This is a wrong input " + " " +  countryId);
 
             return ResponseEntity.badRequest().body(error);
 
