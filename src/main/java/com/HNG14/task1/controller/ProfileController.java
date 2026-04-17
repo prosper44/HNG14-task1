@@ -35,14 +35,54 @@ public class ProfileController {
   
 
     @PostMapping("/api/profiles")
-    public ResponseEntity<?> createProfile(@Valid @RequestBody Profile profile)
-     {
+    public ResponseEntity<?> createProfile(@Valid @RequestBody Profile profile) {
 
-        
-        Map<String, Object> profileData = profileService.createProfile(profile.getName());
-    return ResponseEntity.status(HttpStatus.CREATED).body(profileData);
-   }
-    
+        Object nameObj = profile.getName();
+
+      
+      
+
+        if (nameObj == null || nameObj.toString().trim().isEmpty()) {
+            
+
+            Map<String,Object> error = new LinkedHashMap<>();
+                error.put("status", "error");
+                error.put("message", "Name is required and cannot be empty");
+                
+            return ResponseEntity.badRequest().body(error);
+        }
+
+      if (nameObj == null
+    || nameObj instanceof Number
+    || nameObj.toString().matches("\\d+")
+    || !nameObj.toString().matches("^[A-Za-z\\-'\\s]+$")
+    || nameObj.toString().matches(".*([A-Za-z])\\1{3,}.*")
+    || nameObj.toString().length() < 2
+    || nameObj.toString().length() > 15) 
+        {
+             Map<String,Object> error = new LinkedHashMap<>();
+                error.put("status", "error");
+                error.put("message", "Invalid name type");
+                
+            return ResponseEntity.unprocessableEntity().body(error);
+        }
+
+
+       
+
+        try {
+            Map<String, Object> profileData = profileService.createProfile(nameObj.toString());
+            return ResponseEntity.status(HttpStatus.CREATED).body(profileData);
+        } catch (CustomNotFoundException e) {
+
+            Map<String,Object> error = new LinkedHashMap<>();
+
+                error.put("status", "error");
+                error.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(error);
+        }
+    }
 
     @GetMapping("/api/profiles/{id}")
     public ResponseEntity<?> getProfile(@PathVariable String id) {
