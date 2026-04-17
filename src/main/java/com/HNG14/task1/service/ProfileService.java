@@ -190,6 +190,7 @@ public class ProfileService {
 
             // Validate countryId
             if (countryId != null) {
+                
                 countryId = countryId.trim().toUpperCase();
                 if (countryId.length() != 2 ) {
                     Map<String, Object> error = new LinkedHashMap<>();
@@ -238,7 +239,7 @@ public class ProfileService {
         {
             Map<String,Object> error = new LinkedHashMap<>();
             error.put("status", "error");
-            error.put("message", "This is a wrong input " + " " +  countryId);
+            error.put("message", "wrong input " );
 
             return ResponseEntity.badRequest().body(error);
 
