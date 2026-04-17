@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.HNG14.task1.exception.CustomNotFoundException;
+import com.HNG14.task1.model.Profile;
 import com.HNG14.task1.service.ProfileService;
 
 import jakarta.validation.Valid;
@@ -34,9 +35,9 @@ public class ProfileController {
   
 
     @PostMapping("/api/profiles")
-    public ResponseEntity<?> createProfile(@Valid @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> createProfile(@Valid @RequestBody Profile profile) {
 
-        Object nameObj = request.get("name");
+        Object nameObj = profile.getName();
 
       
       
