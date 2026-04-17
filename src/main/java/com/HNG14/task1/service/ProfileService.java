@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -163,25 +164,15 @@ public class ProfileService {
     {
         List<Profile> profiles;
 
-        if(gender != null && countryId != null && ageGroup != null){
+      
            profiles = profileRepository.findByGenderIgnoreCaseAndAgeGroupIgnoreCaseAndCountryIdIgnoreCase(gender, ageGroup, countryId); 
-                
-
-           
-        }
-        else if(gender != null){
-            profiles = profileRepository.findByGenderIgnoreCase(gender);  
-            
-        }
-        else if(ageGroup != null){
-            profiles = profileRepository.findByAgeGroupIgnoreCase(ageGroup);  
-        }
-        else if(countryId != null){
-            profiles = profileRepository.findByCountryIdIgnoreCase(countryId);
-        }
-        else {
-            profiles = profileRepository.findAll();
-        }
+       
+            profiles = profileRepository.findAll().stream()
+        .filter(p -> gender == null || p.getGender().equalsIgnoreCase(gender))
+        .filter(p -> countryId == null || p.getCountryId().equalsIgnoreCase(countryId))
+        .filter(p -> ageGroup == null || p.getAgeGroup().equalsIgnoreCase(ageGroup))
+        .collect(Collectors.toList());
+        
 
         List<Map<String, Object>> response = new ArrayList<>();
         for (Profile profile : profiles) {
