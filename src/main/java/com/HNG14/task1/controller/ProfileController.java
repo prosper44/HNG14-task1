@@ -40,31 +40,44 @@ public class ProfileController {
         Object nameObj = profile.getName();
 
       
-      
+         
 
-        if (nameObj == null || nameObj.toString().trim().isEmpty()) {
-            
+    // Missing name
+    if (nameObj == null) {
+        return ResponseEntity.badRequest().body(Map.of(
+            "status", "error",
+            "message", "Name is required"
+        ));
+    }
 
-            Map<String,Object> error = new LinkedHashMap<>();
-                error.put("status", "error");
-                error.put("message", "Name is required and cannot be empty");
-                
-            return ResponseEntity.badRequest().body(error);
-        }
-        
-        if( nameObj instanceof Number
-    || nameObj.toString().matches("\\d+")
-    || !nameObj.toString().matches("^[A-Za-z\\-'\\s]+$")
-    || nameObj.toString().matches(".*([A-Za-z])\\1{3,}.*")
-    || nameObj.toString().length() < 2
-    || nameObj.toString().length() > 15) 
-        {
-             Map<String,Object> error = new LinkedHashMap<>();
-                error.put("status", "error");
-                error.put("message", "Invalid name type");
-                
-            return ResponseEntity.unprocessableEntity().body(error);
-        }
+    String name = nameObj.toString().trim();
+
+    // Empty name
+    if (name.isEmpty()) {
+        return ResponseEntity.badRequest().body(Map.of(
+            "status", "error",
+            "message", "Name cannot be empty"
+        ));
+    }
+
+    // Numeric name
+    if (name.matches("\\d+")) {
+        return ResponseEntity.unprocessableEntity().body(Map.of(
+            "status", "error",
+            "message", "Name cannot be numeric"
+        ));
+    }
+
+    // Other invalid cases (symbols, too short/long, repeated letters)
+    if (!name.matches("^[A-Za-z\\-'\\s]+$") ||
+        name.matches(".*([A-Za-z])\\1{3,}.*") ||
+        name.length() < 2 ||
+        name.length() > 15) {
+        return ResponseEntity.unprocessableEntity().body(Map.of(
+            "status", "error",
+            "message", "Invalid name format"
+        ));
+    }
 
     
 
