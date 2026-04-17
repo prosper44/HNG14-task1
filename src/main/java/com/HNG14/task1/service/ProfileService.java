@@ -191,7 +191,7 @@ public class ProfileService {
             // Validate countryId
             if (countryId != null) {
                 countryId = countryId.trim().toUpperCase();
-                if (countryId.length() != 2) {
+                if (countryId.length() != 2 ) {
                     Map<String, Object> error = new LinkedHashMap<>();
                     error.put("status", "error");
                     error.put("message", "Invalid countryId. Must be ISO 3166-1 alpha-2 code (e.g., NG, US, GB)");
@@ -233,6 +233,16 @@ public class ProfileService {
         finalResponse.put("status", "success");
         finalResponse.put("count", profiles.size());
         finalResponse.put("data", response);
+
+        if(finalResponse.isEmpty())
+        {
+            Map<String,Object> error = new LinkedHashMap<>();
+            error.put("status", "error");
+            error.put("message", "wrong input");
+
+            return ResponseEntity.badRequest().body(error);
+
+        }
 
         return ResponseEntity.ok(finalResponse);
     }
