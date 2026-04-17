@@ -52,7 +52,8 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(error);
         }
 
-      if (nameObj == null
+      if (nameObj == null 
+    || nameObj.toString().trim().isEmpty()
     || nameObj instanceof Number
     || nameObj.toString().matches("\\d+")
     || !nameObj.toString().matches("^[A-Za-z\\-'\\s]+$")
