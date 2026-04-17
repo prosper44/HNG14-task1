@@ -1,11 +1,11 @@
 package com.HNG14.task1.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -162,17 +162,46 @@ public class ProfileService {
 
     public Map<String, Object> getProfiles(String gender, String countryId, String ageGroup)
     {
-        List<Profile> profiles;
+       List<Profile> profiles;
 
-      
-           profiles = profileRepository.findByGenderIgnoreCaseAndAgeGroupIgnoreCaseAndCountryIdIgnoreCase(gender, ageGroup, countryId); 
-       
-            profiles = profileRepository.findAll().stream()
-        .filter(p -> gender == null || p.getGender().equalsIgnoreCase(gender))
-        .filter(p -> countryId == null || p.getCountryId().equalsIgnoreCase(countryId))
-        .filter(p -> ageGroup == null || p.getAgeGroup().equalsIgnoreCase(ageGroup))
-        .collect(Collectors.toList());
-        
+        // validate gender
+        if (gender != null) {
+            gender = gender.trim().toLowerCase();
+            if (!gender.equals("male") && !gender.equals("female")) {
+                throw new CustomNotFoundException("Invalid gender provided. Allowed values: male, female");
+            }
+        }
+
+        // validate ageGroup
+        if (ageGroup != null) {
+            ageGroup = ageGroup.trim().toLowerCase();
+            List<String> validAgeGroups = Arrays.asList("child", "teenager", "adult", "senior");
+            if (!validAgeGroups.contains(ageGroup)) {
+                throw new CustomNotFoundException("Invalid ageGroup provided. Allowed values: child, teenager, adult, senior");
+            }
+        }
+
+        // validate countryId
+        if (countryId != null) {
+            countryId = countryId.trim().toUpperCase();
+            if (countryId.length() != 2) {
+                throw new CustomNotFoundException("Invalid countryId. Must be ISO 3166-1 alpha-2 code (e.g., NG, US, GB)");
+            }
+        }
+
+        // apply filters
+        if (gender != null && ageGroup != null && countryId != null) {
+            profiles = profileRepository.findByGenderIgnoreCaseAndAgeGroupIgnoreCaseAndCountryIdIgnoreCase(gender, ageGroup, countryId);
+        } else if (gender != null) {
+            profiles = profileRepository.findByGenderIgnoreCase(gender);
+        } else if (ageGroup != null) {
+            profiles = profileRepository.findByAgeGroupIgnoreCase(ageGroup);
+        } else if (countryId != null) {
+            profiles = profileRepository.findByCountryIdIgnoreCase(countryId);
+        } else {
+            profiles = profileRepository.findAll();
+        }
+
 
         List<Map<String, Object>> response = new ArrayList<>();
         for (Profile profile : profiles) {
