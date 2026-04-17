@@ -28,7 +28,9 @@ public class Profile {
     
     
 
-
+@NotBlank(message = "Name is required")
+    @Size(min = 1, message = "Name cannot be empty")
+    @Pattern(regexp = ".*\\D.*", message = "Name cannot be purely numeric")
 @Column(nullable = false, unique = true)
     private String name;
 
