@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.HNG14.task1.exception.CustomNotFoundException;
+
 
 
 @Service
@@ -87,7 +87,7 @@ public class ExternalApiService {
             return errorResponse;
         }
         return countries.stream()
-            .max(Comparator.comparing(c -> ((Number)c.get("probability")).doubleValue()))
+            .max(Comparator.comparing(country -> ((Number)country.get("probability")).doubleValue()))
             .get();
     }
 }

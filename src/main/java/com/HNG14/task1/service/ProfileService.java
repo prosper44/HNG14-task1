@@ -30,11 +30,11 @@ public class ProfileService {
         name = name.toLowerCase();
         
 
-        Optional<Profile> profiles = profileRepository.findByName(name);
+        Optional<Profile> profileExist = profileRepository.findByName(name);
 
-        if(profiles.isPresent())
+        if(profileExist.isPresent())
         {
-            Profile existing = profiles.get();
+            Profile existing = profileExist.get();
                Map<String, Object> response1 = new LinkedHashMap<>();
 
          response1.put("id", existing.getId());
@@ -239,9 +239,9 @@ public class ProfileService {
         {
             Map<String,Object> error = new LinkedHashMap<>();
             error.put("status", "error");
-            error.put("message", "wrong input " );
+            error.put("message", "can't find profiles with the specified criteria" );
 
-            return ResponseEntity.badRequest().body(error);
+            return ResponseEntity.status(404).body(error);
 
         }
 
@@ -251,6 +251,7 @@ public class ProfileService {
     public void deleteProfile(String id)
     {
         Optional<Profile> existing = profileRepository.findById(id);
+        
         if(!(existing.isPresent()))
         {
             throw new CustomNotFoundException("Profile not found");  
