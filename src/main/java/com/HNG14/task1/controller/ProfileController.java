@@ -120,7 +120,7 @@ public class ProfileController {
         @RequestParam(required = false) Integer max_age,
         @RequestParam(required = false) Double min_gender_probability,
         @RequestParam(required = false) Double min_country_probability,
-        @RequestParam(defaultValue = "created_at") String sort_by,
+        @RequestParam(defaultValue = "createdAt") String sort_by,
         @RequestParam(defaultValue = "asc") String order,
         @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "10") int limit
