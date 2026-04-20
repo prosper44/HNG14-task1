@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +19,7 @@ import com.HNG14.task1.exception.CustomNotFoundException;
 import com.HNG14.task1.model.Profile;
 import com.HNG14.task1.service.ProfileService;
 
-import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/")
@@ -35,7 +35,7 @@ public class ProfileController {
   
 
     @PostMapping("/api/profiles")
-    public ResponseEntity<?> createProfile(@Valid @RequestBody Profile profile) {
+    public ResponseEntity<?> createProfile(@RequestBody Profile profile) {
 
         Object nameObj = profile.getName();
 
@@ -114,11 +114,28 @@ public class ProfileController {
     @GetMapping("/api/profiles")
     public ResponseEntity<?> getAllProfiles(
         @RequestParam(required = false) String gender,
+        @RequestParam(required = false) String ageGroup,
         @RequestParam(required = false) String countryId,
-        @RequestParam(required = false) String ageGroup
+        @RequestParam(required = false) Integer min_age,
+        @RequestParam(required = false) Integer max_age,
+        @RequestParam(required = false) Double min_gender_probability,
+        @RequestParam(required = false) Double min_country_probability,
+        @RequestParam(defaultValue = "created_at") String sort_by,
+        @RequestParam(defaultValue = "asc") String order,
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int limit
     )
     {
-        return ResponseEntity.ok(profileService.getProfiles(gender, countryId, ageGroup));
+         return ResponseEntity.ok(
+        profileService.getProfiles(
+            gender, ageGroup, countryId,
+            min_age, max_age,
+            min_gender_probability,
+            min_country_probability,
+            sort_by, order,
+            page, limit
+        )
+    );
     }
     
     @DeleteMapping("/api/profiles/{id}")
@@ -126,7 +143,7 @@ public class ProfileController {
 
         
         try {
-            if(id == null || id.trim().isEmpty() || !(id instanceof String) ||!id.equals(id))
+            if(id == null || id.trim().isEmpty())
             {
             Map<String,Object> error = new LinkedHashMap<>();
                 error.put("status", "error");
@@ -134,9 +151,7 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(error);
         }
             profileService.deleteProfile(id);
-                Map<String,Object> response = new LinkedHashMap<>();
-                    response.put("status", "success");
-                    response.put("message", "Profile with ID: " + id + " has been deleted successfully.");
+                
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             Map<String,Object> error = new LinkedHashMap<>();
@@ -145,4 +160,20 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
     }
+
+
+    @GetMapping("/api/profiles/search")
+public ResponseEntity<?> searchProfiles(
+        @RequestParam String q,
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int limit
+) {
+    if(q == null || q.trim().isEmpty()) {
+        Map<String,Object> error = new LinkedHashMap<>();
+                error.put("status", "error");
+                error.put("message", "Search query 'q' is required and cannot be empty");
+        return ResponseEntity.badRequest().body(error);
+    }
+    return ResponseEntity.ok(profileService.search(q, page, limit));
+}
 }

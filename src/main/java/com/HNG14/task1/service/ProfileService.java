@@ -1,18 +1,23 @@
 package com.HNG14.task1.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
 import org.springframework.stereotype.Service;
 
 import com.HNG14.task1.exception.CustomNotFoundException;
 import com.HNG14.task1.model.Profile;
 import com.HNG14.task1.repository.ProfileRepository;
+import com.HNG14.task1.specification.ProfileSpecification;
 
 
 @Service
@@ -41,12 +46,12 @@ public class ProfileService {
             response1.put("name", existing.getName());
             response1.put("gender", existing.getGender());
             response1.put("gender_probability", existing.getGenderProbability());
-            response1.put("sample_size", existing.getSampleSize());
+            response1.put("country_name", existing.getCountryName());
             response1.put("age", existing.getAge());
             response1.put("age_group", existing.getAgeGroup());
             response1.put("country_id", existing.getCountryId());
             response1.put("country_probability", existing.getCountryProbability());
-            response1.put("created_at", existing.getCreatedAt());
+            response1.put("created_at", existing.getCreatedAt().toString());
 
         
             Map<String, Object> existingProfile = new LinkedHashMap<>();
@@ -93,10 +98,42 @@ public class ProfileService {
             Profile profile = new Profile();
             Map<String,Object> displayProfile = new LinkedHashMap<>();
 
+            String countryName;
+            
+            switch (countryId) {
+                case "US": 
+                    countryName = "United States";
+                    break;
+                case "NG": 
+                    countryName = "Nigeria";
+                    break;
+                case "KE":
+                    countryName = "Kenya";
+                    break;
+                case "GB":
+                    countryName = "United Kingdom";
+                    break;
+                case "DE":
+                    countryName = "Germany";
+                    break;
+                case "FR":
+                    countryName = "France";
+                    break;
+                case "IT":
+                    countryName = "Italy";
+                    break;
+                case "ES":
+                    countryName = "Spain";
+                    break;
+            
+                default: countryName = "unknown";
+                    break;
+            }
+
             profile.setName(name);
             profile.setGender(gender);
             profile.setGenderProbability(genderPobability);
-            profile.setSampleSize(sampleSize);
+            profile.setCountryName(countryName);
             profile.setAge(age);
             profile.setAgeGroup(ageGroup);
             profile.setCountryId(countryId);
@@ -108,12 +145,12 @@ public class ProfileService {
             displayProfile.put("name", profile.getName());
             displayProfile.put("gender", profile.getGender());
             displayProfile.put("gender_probability", profile.getGenderProbability());
-            displayProfile.put("sample_size", profile.getSampleSize());
+            displayProfile.put("country_name", profile.getCountryName());
             displayProfile.put("age", profile.getAge());
             displayProfile.put("age_group", profile.getAgeGroup());
             displayProfile.put("country_id", profile.getCountryId());
             displayProfile.put("country_probability", profile.getCountryProbability());
-            displayProfile.put("created_at", profile.getCreatedAt());
+            displayProfile.put("created_at", profile.getCreatedAt().toString());
             
 
             
@@ -141,12 +178,12 @@ public class ProfileService {
             response1.put("name", getExisting.getName());
             response1.put("gender", getExisting.getGender());
             response1.put("gender_probability", getExisting.getGenderProbability());
-            response1.put("sample_size", getExisting.getSampleSize());
+            response1.put("country_name", getExisting.getCountryName());
             response1.put("age", getExisting.getAge());
             response1.put("age_group", getExisting.getAgeGroup());
             response1.put("country_id", getExisting.getCountryId());
             response1.put("country_probability", getExisting.getCountryProbability());
-            response1.put("created_at", getExisting.getCreatedAt());
+            response1.put("created_at", getExisting.getCreatedAt().toString());
 
         if(existing.isPresent()){
             Map<String, Object> response = new LinkedHashMap<>();
@@ -161,91 +198,59 @@ public class ProfileService {
         }
     }
 
-    public ResponseEntity<Map<String, Object>> getProfiles(String gender, String countryId, String ageGroup)
+    public Map<String, Object> getProfiles( String gender,
+        String ageGroup,
+        String countryId,
+        Integer minAge,
+        Integer maxAge,
+        Double minGenderProbability,
+        Double minCountryProbability,
+        String sortBy,
+        String order,
+        int page,
+        int limit)
     {
-       List<Profile> profiles;
+        Specification<Profile> spec = Specification
+            .where(ProfileSpecification.hasGender(gender))
+            .and(ProfileSpecification.hasAgeGroup(ageGroup))
+            .and(ProfileSpecification.hasCountryId(countryId))
+            .and(ProfileSpecification.minAge(minAge))
+            .and(ProfileSpecification.maxAge(maxAge))
+            .and(ProfileSpecification.minGenderProbability(minGenderProbability))
+            .and(ProfileSpecification.minCountryProbability(minCountryProbability));
 
-                // Validate gender
-            if (gender != null) {
-                gender = gender.trim().toLowerCase();
-                if (!gender.equals("male") && !gender.equals("female")) {
-                    Map<String, Object> error = new LinkedHashMap<>();
-                    error.put("status", "error");       
-                    error.put("message", "Invalid gender provided. Allowed values: male, female");  
-                    return ResponseEntity.badRequest().body(error);
-                }
-            }
+    Sort sort = Sort.by(
+            "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC,
+            sortBy != null ? sortBy : "createdAt"
+    );
 
-            // Validate ageGroup
-            if (ageGroup != null) {
-                ageGroup = ageGroup.trim().toLowerCase();
-                List<String> validAgeGroups = Arrays.asList("child", "teenager", "adult", "senior");
-                if (!validAgeGroups.contains(ageGroup)) {
-                    Map<String, Object> error = new LinkedHashMap<>();
-                    error.put("status", "error");
-                    error.put("message", "Invalid ageGroup provided. Allowed values: child, teenager, adult, senior");
-                    return ResponseEntity.badRequest().body(error);
-                }
-            }
+    Pageable pageable = PageRequest.of(page - 1, limit, sort);
 
-            // Validate countryId
-            if (countryId != null) {
-                
-                countryId = countryId.trim().toUpperCase();
-                if (countryId.length() != 2 ) {
-                    Map<String, Object> error = new LinkedHashMap<>();
-                    error.put("status", "error");
-                    error.put("message", "Invalid countryId. Must be ISO 3166-1 alpha-2 code (e.g., NG, US, GB)");
-                    return ResponseEntity.badRequest().body(error);
-                }
-            }
+    Page<Profile> result = profileRepository.findAll(spec, pageable);
 
-            // Apply filters
-            
-            if (gender != null && ageGroup != null && countryId != null) {
-                profiles = profileRepository.findByGenderIgnoreCaseAndAgeGroupIgnoreCaseAndCountryIdIgnoreCase(gender, ageGroup, countryId);
-            } else if (gender != null) {
-                profiles = profileRepository.findByGenderIgnoreCase(gender);
-            } else if (ageGroup != null) {
-                profiles = profileRepository.findByAgeGroupIgnoreCase(ageGroup);
-            } else if (countryId != null) {
-                profiles = profileRepository.findByCountryIdIgnoreCase(countryId);
-            } else {
-                profiles = profileRepository.findAll();
-            }
+    List<Map<String, Object>> data = result.getContent().stream().map(profile -> {
+        Map<String, Object> p = new LinkedHashMap<>();
+        p.put("id", profile.getId());
+        p.put("name", profile.getName());
+        p.put("gender", profile.getGender());
+        p.put("gender_probability", profile.getGenderProbability());
+        p.put("age", profile.getAge());
+        p.put("age_group", profile.getAgeGroup());
+        p.put("country_id", profile.getCountryId());
+        p.put("country_name", profile.getCountryName());
+        p.put("country_probability", profile.getCountryProbability());
+        p.put("created_at", profile.getCreatedAt().toString());
+        return p;
+    }).toList();
 
-        List<Map<String, Object>> response = new ArrayList<>();
-        for (Profile profile : profiles) {
-            Map<String, Object> profileData = new LinkedHashMap<>();
-            profileData.put("id", profile.getId());
-            profileData.put("name", profile.getName());
-            profileData.put("gender", profile.getGender());
-            profileData.put("gender_probability", profile.getGenderProbability());
-            profileData.put("sample_size", profile.getSampleSize());
-            profileData.put("age", profile.getAge());
-            profileData.put("age_group", profile.getAgeGroup());
-            profileData.put("country_id", profile.getCountryId());
-            profileData.put("country_probability", profile.getCountryProbability());
-            profileData.put("created_at", profile.getCreatedAt());
-            response.add(profileData);
-        }
+    Map<String, Object> response = new LinkedHashMap<>();
+    response.put("status", "success");
+    response.put("page", page);
+    response.put("limit", limit);
+    response.put("total", result.getTotalElements());
+    response.put("data", data);
 
-        Map<String, Object> finalResponse = new LinkedHashMap<>();
-        finalResponse.put("status", "success");
-        finalResponse.put("count", profiles.size());
-        finalResponse.put("data", response);
-
-        if(profiles.isEmpty())
-        {
-            Map<String,Object> error = new LinkedHashMap<>();
-            error.put("status", "error");
-            error.put("message", "can't find profiles with the specified criteria" );
-
-            return ResponseEntity.status(404).body(error);
-
-        }
-
-        return ResponseEntity.ok(finalResponse);
+    return response;
     }
 
     public void deleteProfile(String id)
@@ -260,14 +265,47 @@ public class ProfileService {
         Profile getExisting = existing.get();
         profileRepository.delete(getExisting);
 
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("status", "deleted successfully");
-        response.put("message", "Profile with id: " + id + " has been deleted");
-
-        
-
-           
-
-        
+               
     }
+
+
+    public Map<String, Object> search(String q, int page, int limit) {
+
+    String query = q.toLowerCase();
+
+    String gender = null;
+    String ageGroup = null;
+    String countryId = null;
+    Integer minAge = null;
+    Integer maxAge = null;
+
+    if (query.contains("male")) gender = "male";
+    if (query.contains("female")) gender = "female";
+
+    if (query.contains("young")) {
+        minAge = 16;
+        maxAge = 24;
+    }
+
+    if (query.contains("adult")) ageGroup = "adult";
+    if (query.contains("teenager")) ageGroup = "teenager";
+
+    if (query.contains("nigeria")) countryId = "NG";
+    if (query.contains("kenya")) countryId = "KE";
+
+    if (query.contains("above")) {
+        String[] parts = query.split("above");
+        minAge = Integer.parseInt(parts[1].trim().split(" ")[0]);
+    }
+
+    // If nothing detected
+    if (gender == null && ageGroup == null && countryId == null && minAge == null) {
+        return Map.of(
+            "status", "error",
+            "message", "Unable to interpret query"
+        );
+    }
+
+    return getProfiles(gender, ageGroup, countryId, minAge, maxAge, null, null, "createdAt", "asc", page, limit);
+}
 }
