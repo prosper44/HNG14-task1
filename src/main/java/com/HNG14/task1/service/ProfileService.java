@@ -171,7 +171,7 @@ public class ProfileService {
     public Map<String, Object> getProfileById(String id)
     {
         Optional<Profile> existing = profileRepository.findById(id);
-        Profile getExisting = existing.get();
+               Profile getExisting = existing.get();
               Map<String, Object> response1 = new LinkedHashMap<>();
 
          response1.put("id", getExisting.getId());
@@ -184,6 +184,7 @@ public class ProfileService {
             response1.put("country_id", getExisting.getCountryId());
             response1.put("country_probability", getExisting.getCountryProbability());
             response1.put("created_at", getExisting.getCreatedAt().toString());
+       
 
         if(existing.isPresent()){
             Map<String, Object> response = new LinkedHashMap<>();
@@ -221,7 +222,7 @@ public class ProfileService {
 
     Sort sort = Sort.by(
             "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC,
-            sortBy != null ? sortBy : "created_at"
+            sortBy != null ? sortBy : "createdAt"
     );
 
     Pageable pageable = PageRequest.of(page - 1, limit, sort);
@@ -306,6 +307,6 @@ public class ProfileService {
         );
     }
 
-    return getProfiles(gender, ageGroup, countryId, minAge, maxAge, null, null, "created_at", "asc", page, limit);
+    return getProfiles(gender, ageGroup, countryId, minAge, maxAge, null, null, "createdAt", "asc", page, limit);
 }
 }
