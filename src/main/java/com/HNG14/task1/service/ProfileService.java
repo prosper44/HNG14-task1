@@ -125,6 +125,12 @@ public class ProfileService {
                 case "ES":
                     countryName = "Spain";
                     break;
+                case "CA":
+                    countryName = "Canada";
+                    break;
+                case "AU":
+                    countryName = "Australia";
+                    break;
             
                 default: countryName = "unknown";
                     break;
@@ -211,6 +217,8 @@ public class ProfileService {
         int page,
         int limit)
     {
+         
+
         Specification<Profile> spec = Specification
             .where(ProfileSpecification.hasGender(gender))
             .and(ProfileSpecification.hasAgeGroup(ageGroup))
@@ -228,7 +236,14 @@ public class ProfileService {
     Pageable pageable = PageRequest.of(page - 1, limit, sort);
 
     Page<Profile> result = profileRepository.findAll(spec, pageable);
-
+    if(result.isEmpty()) {
+        return Map.of(
+            "status", "success",
+            "message", "No profiles found matching the criteria",
+            "data", List.of()
+        );
+    }
+    
     List<Map<String, Object>> data = result.getContent().stream().map(profile -> {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("id", profile.getId());
@@ -293,11 +308,37 @@ public class ProfileService {
 
     if (query.contains("nigeria")) countryId = "NG";
     if (query.contains("kenya")) countryId = "KE";
+    if (query.contains("united states") || query.contains("usa") || query.contains("us")) countryId = "US";
+    if (query.contains("united kingdom") || query.contains("uk") || query.contains("britain")) countryId = "GB";
+    if (query.contains("germany")) countryId = "DE";
+    if (query.contains("france")) countryId = "FR";
+    if (query.contains("italy")) countryId = "IT";
+    if (query.contains("spain")) countryId = "ES";
+    if (query.contains("canada")) countryId = "CA"; 
+    if (query.contains("australia")) countryId = "AU";
+    if (query.contains("ghana")) countryId = "GH";
 
-    if (query.contains("above")) {
-        String[] parts = query.split("above");
-        minAge = Integer.parseInt(parts[1].trim().split(" ")[0]);
+   if (query.contains("above")) {
+    String[] parts = query.split("above");
+    if (parts.length > 1) {
+        String afterAbove = parts[1].trim();
+        String[] tokens = afterAbove.split(" ");
+        if (tokens.length > 0 && tokens[0].matches("\\d+")) {
+            minAge = Integer.parseInt(tokens[0]);
+        } else {
+            return Map.of(
+                "status", "error",
+                "message", "Invalid query: 'above' must be followed by a number"
+            );
+        }
+    } else {
+        return Map.of(
+            "status", "error",
+            "message", "Invalid query: 'above' must be followed by a number"
+        );
     }
+}
+
 
     // If nothing detected
     if (gender == null && ageGroup == null && countryId == null && minAge == null) {

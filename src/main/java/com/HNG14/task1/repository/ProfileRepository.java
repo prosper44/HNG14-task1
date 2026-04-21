@@ -18,6 +18,8 @@ public interface ProfileRepository extends JpaRepository<Profile, String>,JpaSpe
     List<Profile> findByGenderIgnoreCase(String gender);
     List<Profile> findByAgeGroupIgnoreCase(String ageGroup);
     List<Profile> findByCountryIdIgnoreCase(String countryId);
-    List<Profile> findByGenderIgnoreCaseAndAgeGroupIgnoreCaseAndCountryIdIgnoreCase(String gender, String ageGroup, String countryId);  
+    List<Profile> findByGenderIgnoreCaseAndAgeGroupIgnoreCaseAndCountryIdIgnoreCase(String gender, String ageGroup, String countryId);
+
+    boolean existsByName(String name);  
     
 }

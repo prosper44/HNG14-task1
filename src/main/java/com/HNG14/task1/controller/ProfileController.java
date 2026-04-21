@@ -1,7 +1,9 @@
 package com.HNG14.task1.controller;
 
+import java.lang.StackWalker.Option;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -126,11 +128,43 @@ public class ProfileController {
         @RequestParam(defaultValue = "10") int limit
     )
     {
-         return ResponseEntity.ok(
-        profileService.getProfiles(
-            gender, ageGroup, countryId,
-            min_age, max_age,
-            min_gender_probability,
+       
+      
+        if(ageGroup != "child" && ageGroup != "adult" && ageGroup != "senior" && ageGroup != null)
+        {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "error",
+                "message", "Invalid age group value. Please specify 'child', 'adult', or 'senior'."
+            ));
+        }
+         if(countryId != null && !countryId.matches("^[A-Za-z]{2}$"))
+        {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "error",
+                "message", "Invalid country ID. Please provide a valid ISO 3166-1 alpha-2 country code."
+            ));
+        }
+         if(min_age != null && min_age < 0)
+        {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "error",
+                "message", "Minimum age cannot be negative."
+            ));
+        }
+         if(max_age != null && max_age < 0)
+        {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "error",
+                "message", "Maximum age cannot be negative."
+            ));
+        }
+      
+
+        return ResponseEntity.ok(
+            profileService.getProfiles(
+                gender, ageGroup, countryId,
+                min_age, max_age,
+                min_gender_probability,
             min_country_probability,
             sort_by, order,
             page, limit

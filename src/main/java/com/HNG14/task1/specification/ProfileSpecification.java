@@ -5,10 +5,13 @@ import com.HNG14.task1.model.Profile;
 public class ProfileSpecification {
   
 
-    public static Specification<Profile> hasGender(String gender) {
-        return (root, query, cb) ->
-            gender == null ? null : cb.equal(cb.lower(root.get("gender")), gender.toLowerCase());
+   public static Specification<Profile> hasGender(String gender) {
+    if (gender == null || gender.isBlank()) {
+        return (root, query, cb) -> cb.conjunction(); // skip filter
     }
+    return (root, query, cb) -> cb.equal(cb.upper(root.get("gender")), gender.toUpperCase());
+}
+
 
     public static Specification<Profile> hasAgeGroup(String ageGroup) {
         return (root, query, cb) ->
@@ -19,6 +22,8 @@ public class ProfileSpecification {
         return (root, query, cb) ->
             countryId == null ? null : cb.equal(cb.upper(root.get("countryId")), countryId.toUpperCase());
     }
+
+    
 
     public static Specification<Profile> minAge(Integer minAge) {
         return (root, query, cb) ->
