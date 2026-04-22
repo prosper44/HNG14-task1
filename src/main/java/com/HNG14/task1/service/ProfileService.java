@@ -337,10 +337,30 @@ public class ProfileService {
             "message", "Invalid query: 'above' must be followed by a number"
         );
     }
+
 }
 
-
-    // If nothing detected
+     if (query.contains("below")) {
+    String[] part = query.split("below");
+    if (part.length > 1) {
+        String afterAbove = part[1].trim();
+        String[] tokens = afterAbove.split(" ");
+        if (tokens.length > 0 && tokens[0].matches("\\d+")) {
+            maxAge = Integer.parseInt(tokens[0]);
+        } else {
+            return Map.of(
+                "status", "error",
+                "message", "Invalid query: 'below' must be followed by a number"
+            );
+        }
+    } else {
+        return Map.of(
+            "status", "error",
+            "message", "Invalid query: 'below' must be followed by a number"
+        );
+    }
+}
+  // If nothing detected
     if (gender == null && ageGroup == null && countryId == null && minAge == null) {
         return Map.of(
             "status", "error",
