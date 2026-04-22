@@ -369,7 +369,7 @@ public class ProfileService {
 }
 
   // If nothing detected
-    if (gender == null && ageGroup == null && countryId == null && minAge == null) {
+    if (gender == null && ageGroup == null && countryId == null && minAge == null && maxAge == null) {
         return Map.of(
             "status", "error",
             "message", "Unable to interpret query"
