@@ -340,13 +340,20 @@ public class ProfileService {
 
 }
 
-     if (query.contains("below")) {
-    String[] part = query.split("below", 2);
-    if (part.length > 1) {
-        String afterBelow = part[1].trim();
-        String[] tokens = afterBelow.split(" ");
-        if (tokens.length > 0 && tokens[0].matches("\\d+")) {
-            maxAge = Integer.parseInt(tokens[0]);
+   if (query.contains("below")) {
+    String[] parts = query.split("below", 2); // only split into 2 parts
+    if (parts.length > 1) {
+        String afterBelow = parts[1].trim();
+        if (!afterBelow.isEmpty()) {
+            String[] tokens = afterBelow.split("\\s+"); // split on any whitespace
+            if (tokens.length > 0 && tokens[0].matches("\\d+")) {
+                maxAge = Integer.parseInt(tokens[0]);
+            } else {
+                return Map.of(
+                    "status", "error",
+                    "message", "Invalid query: 'below' must be followed by a number"
+                );
+            }
         } else {
             return Map.of(
                 "status", "error",
@@ -360,6 +367,7 @@ public class ProfileService {
         );
     }
 }
+
   // If nothing detected
     if (gender == null && ageGroup == null && countryId == null && minAge == null) {
         return Map.of(
