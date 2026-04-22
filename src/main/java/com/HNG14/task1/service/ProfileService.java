@@ -341,10 +341,10 @@ public class ProfileService {
 }
 
      if (query.contains("below")) {
-    String[] part = query.split("below");
+    String[] part = query.split("below", 2);
     if (part.length > 1) {
-        String afterAbove = part[1].trim();
-        String[] tokens = afterAbove.split(" ");
+        String afterBelow = part[1].trim();
+        String[] tokens = afterBelow.split(" ");
         if (tokens.length > 0 && tokens[0].matches("\\d+")) {
             maxAge = Integer.parseInt(tokens[0]);
         } else {
