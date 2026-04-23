@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -234,10 +235,12 @@ public class ProfileService {
         return Map.of("status", "error", "message", "Invalid sort_by field");
     }
 
-    Sort sort = Sort.by(
-            "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC,
-            sortBy != null ? sortBy : "createdAt"
-    );
+    if (order != null && !(order.equalsIgnoreCase("asc") || order.equalsIgnoreCase("desc"))) {
+    return Map.of("status", "error", "message", "Invalid order value");
+}
+    Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+   Sort sort = Sort.by(direction, sortBy != null ? sortBy : "createdAt");
 
     Pageable pageable = PageRequest.of(page - 1, limit, sort);
 
