@@ -228,6 +228,12 @@ public class ProfileService {
             .and(ProfileSpecification.minGenderProbability(minGenderProbability))
             .and(ProfileSpecification.minCountryProbability(minCountryProbability));
 
+
+      Set<String> allowedSortFields = Set.of("createdAt", "age", "countryId");
+    if (sortBy != null && !allowedSortFields.contains(sortBy)) {
+        return Map.of("status", "error", "message", "Invalid sort_by field");
+    }
+
     Sort sort = Sort.by(
             "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC,
             sortBy != null ? sortBy : "createdAt"
