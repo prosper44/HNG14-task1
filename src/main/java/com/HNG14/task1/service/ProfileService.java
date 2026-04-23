@@ -285,8 +285,7 @@ public class ProfileService {
     }
 
 
-    public Map<String, Object> search(String q, int page, int limit) {
-
+   public Map<String, Object> search(String q, int page, int limit) {
     String query = q.toLowerCase();
 
     String gender = null;
@@ -294,88 +293,89 @@ public class ProfileService {
     String countryId = null;
     Integer minAge = null;
     Integer maxAge = null;
+    Double minCountryProbability = null;
 
+    // Gender detection
     if (query.contains("male")) gender = "male";
     if (query.contains("female")) gender = "female";
 
+    // Age group detection
+    if (query.contains("adult")) ageGroup = "adult";
+    if (query.contains("teenager")) ageGroup = "teenager";
+
+    // Age ranges
     if (query.contains("young")) {
         minAge = 16;
         maxAge = 24;
     }
-
-    if (query.contains("adult")) ageGroup = "adult";
-    if (query.contains("teenager")) ageGroup = "teenager";
-
-    if (query.contains("nigeria")) countryId = "NG";
-    if (query.contains("kenya")) countryId = "KE";
-    if (query.contains("united states") || query.contains("usa") || query.contains("us")) countryId = "US";
-    if (query.contains("united kingdom") || query.contains("uk") || query.contains("britain")) countryId = "GB";
-    if (query.contains("germany")) countryId = "DE";
-    if (query.contains("france")) countryId = "FR";
-    if (query.contains("italy")) countryId = "IT";
-    if (query.contains("spain")) countryId = "ES";
-    if (query.contains("canada")) countryId = "CA"; 
-    if (query.contains("australia")) countryId = "AU";
-    if (query.contains("ghana")) countryId = "GH";
-
-   if (query.contains("above")) {
-    String[] parts = query.split("above");
-    if (parts.length > 1) {
-        String afterAbove = parts[1].trim();
-        String[] tokens = afterAbove.split(" ");
-        if (tokens.length > 0 && tokens[0].matches("\\d+")) {
-            minAge = Integer.parseInt(tokens[0]);
-        } else {
-            return Map.of(
-                "status", "error",
-                "message", "Invalid query: 'above' must be followed by a number"
-            );
+    if (query.contains("above")) {
+        String[] parts = query.split("above", 2);
+        if (parts.length > 1) {
+            String[] tokens = parts[1].trim().split("\\s+");
+            if (tokens.length > 0 && tokens[0].matches("\\d+")) {
+                minAge = Integer.parseInt(tokens[0]);
+            } else {
+                return Map.of("status", "error", "message", "Invalid query: 'above' must be followed by a number");
+            }
         }
-    } else {
-        return Map.of(
-            "status", "error",
-            "message", "Invalid query: 'above' must be followed by a number"
-        );
     }
-
-}
-
-   if (query.contains("below")) {
-    String[] parts = query.split("below", 2); // only split into 2 parts
-    if (parts.length > 1) {
-        String afterBelow = parts[1].trim();
-        if (!afterBelow.isEmpty()) {
-            String[] tokens = afterBelow.split("\\s+"); // split on any whitespace
+    if (query.contains("below")) {
+        String[] parts = query.split("below", 2);
+        if (parts.length > 1) {
+            String[] tokens = parts[1].trim().split("\\s+");
             if (tokens.length > 0 && tokens[0].matches("\\d+")) {
                 maxAge = Integer.parseInt(tokens[0]);
             } else {
-                return Map.of(
-                    "status", "error",
-                    "message", "Invalid query: 'below' must be followed by a number"
-                );
+                return Map.of("status", "error", "message", "Invalid query: 'below' must be followed by a number");
             }
-        } else {
-            return Map.of(
-                "status", "error",
-                "message", "Invalid query: 'below' must be followed by a number"
-            );
         }
-    } else {
-        return Map.of(
-            "status", "error",
-            "message", "Invalid query: 'below' must be followed by a number"
-        );
-    }
-}
-
-  // If nothing detected
-    if (gender == null && ageGroup == null && countryId == null && minAge == null && maxAge == null) {
-        return Map.of(
-            "status", "error",
-            "message", "Unable to interpret query"
-        );
     }
 
-    return getProfiles(gender, ageGroup, countryId, minAge, maxAge, null, null, "createdAt", "asc", page, limit);
+    // Country detection
+   Map<String, String> countries = Map.ofEntries(
+    Map.entry("nigeria", "NG"),
+    Map.entry("kenya", "KE"),
+    Map.entry("united states", "US"),
+    Map.entry("usa", "US"),
+    Map.entry("us", "US"),
+    Map.entry("united kingdom", "GB"),
+    Map.entry("uk", "GB"),
+    Map.entry("britain", "GB"),
+    Map.entry("germany", "DE"),
+    Map.entry("france", "FR"),
+    Map.entry("italy", "IT"),
+    Map.entry("spain", "ES"),
+    Map.entry("canada", "CA"),
+    Map.entry("australia", "AU"),
+    Map.entry("ghana", "GH")
+);
+
+    for (Map.Entry<String, String> entry : countries.entrySet()) {
+        if (query.contains(entry.getKey())) {
+            countryId = entry.getValue();
+            break;
+        }
+    }
+
+    // Probability threshold (example: "probability above 0.7")
+    if (query.contains("probability")) {
+        String[] tokens = query.split("probability");
+        if (tokens.length > 1) {
+            String after = tokens[1].trim();
+            if (after.matches("above\\s+\\d+(\\.\\d+)?")) {
+                String num = after.split("\\s+")[1];
+                minCountryProbability = Double.parseDouble(num);
+            }
+        }
+    }
+
+    // If nothing detected
+    if (gender == null && ageGroup == null && countryId == null && minAge == null && maxAge == null && minCountryProbability == null) {
+        return Map.of("status", "error", "message", "Unable to interpret query");
+    }
+
+    // Call profile retrieval with strict filters + safe sorting
+    return getProfiles(gender, ageGroup, countryId, minAge, maxAge, minCountryProbability, null, "created_at", "asc", page, limit);
 }
+
 }
